@@ -90,7 +90,7 @@ Linux 内核是很复杂的，现在里面有大概三千万行的代码。对�
 
 正如图 2-1 里的动画展示的那样，一个新功能从一个想法，一直到进入 Linux 内核生产环境，中间要花上好多年。
 
-![[Pasted image 20220520014559.png]]
+![](./Pasted%20image%2020220520014559.png)
 
 #### P8. Kernel Modules
 如果你不想等好多年才能让你（提交）的修改成功进入内核中，你其实还有其他的选择。 Linux 内核设计上是能接受内核模块的，这个是可以按需加载和卸载的（be loaded and unloaded on demand）。如果你想要修改或者扩展内核行为，编写模块肯定是一种办法。在我们这个监控打开文件的系统调用（instrumenting the system call for opening files）的例子中，你可以写一个内核模块来实现这个。
@@ -120,7 +120,7 @@ eBPF 程序可以动态地加载进内核，或者从内核中移除（loaded in
 
 另外，就像图 2-2 里画的那样，人们可以利用 eBPF 非常快速地创造新的内核功能（create new kernel functionality），同时又不需要每一个 Linux 用户都接受这些改变（without requiring every other Linux user to accept the same changes）。
 
-![[Pasted image 20220521140750.png]]
+![](./Pasted%20image%2020220521140750.png)
 
 现在你已经看到了，eBPF 是怎么样允许对内核进行动态的、自定义的修改（how eBPF allows dynamic, custom changes to the kernel），那让我们看看如果你想要写一个 eBPF 程序，有哪些东西是需要你知道的。
 
@@ -143,7 +143,7 @@ eBPF 程序因为一些原因，没办法用任何一种高级语言来编写。
 #### P14. Custom Programs Attached to Events， 附加到事件上的自定义程序
 eBPF 程序本身通常使用 C 或者 Rust 编写的，会被编译成目标文件（compiled into an object file）。这是一种标准的 ELF （Executable and Linkable Format）文件，你可以用像是 readelf 这种工具来检查这个文件类型，这里面通常包含了程序的字节码，还有（使用到的）映射的定义（contains both the program bytecode and the definition of any maps）。就像图 3-1 展示的那样，如果（前几章中提到的）验证器验证通过了，用户空间的程序会读取这个文件（指目标文件），然后把它加载进内核中。
 
-![[Pasted image 20220521144147.png]]
+![](./Pasted%20image%2020220521144147.png)
 
 一旦你把一个 eBPF 程序加载到内核中，他就必须被附加到一个事件上。无论何时这个事件发生了，与之关联的 eBPF 程序就会运行。我们有非常多的事件可以把程序附加上去，这里不会涉及到所有的事件，但是下面会提到一些相对来说比较常用的选择。
 
@@ -223,7 +223,7 @@ struct {
 
 当我们接着看这个程序时，你马上就会看到，`start` 这个 map 被用来暂时存储 syscall 的参数，其中包括了当这个 syscall 正在被调用的时候，即将被打开的文件名字。 `events` 这个 map 是用来把事件的信息从内核中的 eBPF 代码传递到用户空间的可执行程序那边去。图 3-2 展示了整个过程。
 
-![[Pasted image 20220521181919.png]]
+![](./Pasted%20image%2020220521181919.png)
 
 `opensnoop.bpf.c` 这个文件的后面，你还能找到两个非常相似的函数：
 
@@ -453,7 +453,7 @@ BPF CO-RE 这个方法让 eBPF 程序员相比过去，能够更加容易地让�
 #### P31. One Kernel per Host
 为了理解为什么 eBPF 在云原生世界里面这么强大，你需要非常清楚这么一个概念：每一台机器（或者是虚拟机）都只有一个内核，所有运行在这个机器上面的容器都在共享这一个内核，就像图 5-1 展示的那样。运行在任何一个指定的主机上面的所有应用程序代码，用的都是同一个内核，这个内核同样也能感知到所有的这些应用程序代码（The same kernel is involved with and aware of all the application code running on any given host machine）。
 
-![[Pasted image 20220521230936.png]]
+![](./Pasted%20image%2020220521230936.png)
 
 通过观测这个内核，就像我们用 eBPF 的时候做得那样，我们可以同时观测运行在那台机器上的所有应用程序代码。当我们在内核里加载一个 eBPF 程序，并把它附加到一个事件上的时候，不管是哪一个进程涉及到了这个事件，这个 eBPF 程序都会被触发。
 
@@ -466,7 +466,7 @@ BPF CO-RE 这个方法让 eBPF 程序员相比过去，能够更加容易地让�
 
 但是这个加密矿机和运行在这台主机上的其他合法的 pods 都在共享同一个内核。如果你用基于 eBPF 的观测工具，那这个矿机实际上是自动地就被发现了的，就像在图 5-2 里面展示的那样。
 
-![[Pasted image 20220521232556.png]]
+![](./Pasted%20image%2020220521232556.png)
 
 #### P33. eBPF and Process Isolation
 除了用这种每一个 pod 里都要安装一个 sidecars ，我主张的是把这些功能（应该是指 observability and security tools  观测和安全的能力）都整合进一个安装在单个 node 节点中的，基于 eBPF 的代理 agent 里面（a single per-node, eBPF-based agent）。如果这个代理能够访问运行在这个机器上的所有 pods ，这会不会是一种安全风险？我们有没有丢失应用之间的那种，用来防止他们互相干扰的隔离呢？
@@ -505,16 +505,16 @@ CNCF 项目 Cilium 最早是一个基于 eBPF 的 CNI 容器网络接口的实�
 
 在云原生世界里， pods 一直在不停的停止和启动，每一个 pod 都会得到一个 IP 地址。在使用开启 eBPF 的网络（eBPF-enabled networking）以前，每一个节点都必须要为这些变化（指 pods 不停关闭和启动）一直更新一组 iptables 规则，为的是能够在这些 pods 之间进行路由，当规模变大时，管理这些 iptables 规则就会变得很笨重。就像图 6-1 里展示的那样， Cilium 极大地简化了路由，把路由这个东西本质上变成了在 eBPF 中的一张查找表（a simple lookup table in eBPF），带来了显著的性能改进（measurable performance improvements）。
 
-![[Pasted image 20220522004426.png]]
+![](./Pasted%20image%2020220522004426.png)
 
-![[Pasted image 20220522004433.png]]
+![](./Pasted%20image%2020220522004433.png)
 
 另一个除了传统的 iptables 版本之外，还提供了 eBPF 实现的 Kubernetes CNI 是 Calico 项目。
 
 #### P38. Service Mesh，服务网格
 eBPF 作为基础，为 Service Mesh 提供的更高效的数据平面（a more efficient data plane）也很有意义。许多 service mesh 的特性是操作在七层应用层上，并且使用例如 Envoy 的代理组件来代表应用进行操作。在 Kubernetes 里面，这种代理通常是用 sidecar 模型部署的，每一个 pod 里面有一个代理容器，这样这个代理就能够访问 pod 所在的网络命名空间（network namespace）。就像你在第五章里看到的， eBPF 相比 sidecar 模型是一种更高效的方式。因为内核可以访问所有 pod 的 namespaces ，我们可以用 eBPF 在 pods 中的应用程序和主机上的单个代理之间创建连接，就像图 6-2 展示的那样。
 
-![[Pasted image 20220522005414.png]]
+![](./Pasted%20image%2020220522005414.png)
 
 我有另外一篇文章，讲的是用 eBPF 来做更高效的 service mesh 数据平面，叫做 Solo.io 。在我写这篇的时候， Cilium Service Mesh 已经在 beta 测试了，并且在性能表现上已经超出了超过传统 sidecar 代理方式。
 
@@ -527,13 +527,13 @@ Kinvolk 的 Inspektor Gadget 把一些源于 BCC 项目中的工具引入到 Kub
 
 新一代的项目和工具在此基础上进行构建，从而提供基于 GUI 的观测能力（就是有 GUI 了）。 CNCF 的 Pixie 项目让你能够运行事先写好的，或者是自定义的脚本，通过一个强大又好看的 UI 界面来查看数据和日志。因为他是基于 eBPF 的，这意味着你可以自动地观测你所有的应用程序，获取到性能数据，又不需要修改任何代码或者配置。图 6-3 展示了 Pixie 提供的许多可视化中的一个例子。
 
-![[Pasted image 20220522011127.png]]
+![](./Pasted%20image%2020220522011127.png)
 
 另外一个叫做 Parca 的观测项目主要专注于持续性分析，使用 eBPF 来高效的对例如 CPU 使用率等数据进行采样，这样你就能够使用这些数据来检测性能瓶颈。
 
 Cilium 的 Hubble 组件是一个同时提供命令行接口和 UI 的观测工具（图 6-4 展示的那样），他关注的主要是你的 Kubernetes 集群中的网络流。
 
-![[Pasted image 20220522011457.png]]
+![](./Pasted%20image%2020220522011457.png)
 
 在云原生环境中， IP 地址都是持续不断地被动态地分配和重新分配（continually being dynamically assigned and reassigned），传统的基于 IP 地址的网络观测工具使用起来是非常受限制的。作为一个 CNI ， Cilium 能够访问到工作负载的身份信息（workload identity information），这意味着 Hubble 能够展示由 Kubernetes pods 、 services 服务 ，以及 namespaces 一起来标识的服务地图和流量数据（service maps and flow data）。这对于诊断网络问题而言是非常宝贵的。
 
@@ -551,7 +551,7 @@ eBPF 程序也被用来作为一种针对 “packet of death” 的内核漏洞�
 
 在 Kubernetes 里面，网络策略（network policy）是一等的资源，但是又需要网络插件来执行网络策略（left to the networking plug-in to enforce it，就是说得让插件来处理策略）。有一些 CNI ，包括 Cilium 和 Calico ，都通过扩展的网络策略能力（extended network policy capabilities）提供更加强大的规则，比如说根据完全限定的域名（by fully qualified domain name），而不是仅通过 IP 地址，允许或者拒绝发往某一个目的地的流量。就像图 6-5 展示的那样，在 app.networkpolicy.io 那里有一个很好的工具，可以用来设计网络规则，同时还能看到这些规则是什么效果。
 
-![[Pasted image 20220522015132.png]]
+![](./Pasted%20image%2020220522015132.png)
 
 标准的 Kubernetes 网络策略规则会被应用到进出应用 pod 的流量上面，但是因为 eBPF 拥有能够给查看所有网络流量的能力，eBPF 还可以用来当作主机防火墙（used for host firewall capabilities），用来限制进出主机（虚拟机）的流量。
 
